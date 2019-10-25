@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service-one-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: service-one
+  template:
+    metadata:
+      labels:
+        app: service-one
+    spec:
+      containers:
+      - image: sa-service-1
+        imagePullPolicy: Never
+        name: sa-service-1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-one-service
+spec:
+  ports:
+  - name: http
+    targetPort: 5000
+    port: 80
+  selector:
+    app: service-one
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: service-one-ingress
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  rules:
+  - host: service-one.minikube
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: service-one-service
+          servicePort: http
